@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 30px 0;
+        color: #333;
+        font-size: 2.5em;
+    }
+
+    .items {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .categories h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-size: 1.8em;
+    }
+
+    .products-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .product-name {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 1.5em;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .product-button {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .product-button:hover {
+        transform: scale(1.05);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 2em;
+        cursor: pointer;
+        color: #666;
+        background: none;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .close-btn:hover {
+        color: #e84545;
+    }
+
+    .modal-image {
+        width: 100%;
+        height: 300px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        object-fit: cover;
+    }
+
+    .modal-title {
+        font-size: 2em;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-price {
+        font-size: 1.8em;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .modal-section {
+        margin: 20px 0;
+    }
+
+    .modal-section h4 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .modal-section li {
+        padding: 8px 0;
+        color: #666;
+    }
+
+    .modal-section li:before {
+        content: "✓ ";
+        color: #27ae60;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .modal-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .modal-btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        transform: scale(1.05);
+    }
+
+    .modal-btn-secondary {
+        background: #f0f0f0;
+        color: #2c3e50;
+    }
+
+    .modal-btn-secondary:hover {
+        background: #e0e0e0;
+    }
+
+    .rating {
+        color: #ffc107;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+</style>
+
+
+<div class="items">
+    <div class="categories">
+        <h3>Featured Products</h3>
+        <div class="products-container">
+            <!-- Product 1 -->
+            <div class="product-card" onclick="openModal('phone1', 'https://darlingretail.com/cdn/shop/files/iPhone_15_Blue_Pure_Back_iPhone_15_Blue_Pure_Front_2up_Screen__WWEN_800x.jpg?v=1695103868', 'Mobile Phone', 599.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Flagship smartphone with cutting-edge technology', ['6.7 inch Display', '5G Connectivity', '12MP Camera', '4500mAh Battery', 'Waterproof Design', '256GB Storage'])">
+                <div class="product-image"><img src="https://darlingretail.com/cdn/shop/files/iPhone_15_Blue_Pure_Back_iPhone_15_Blue_Pure_Front_2up_Screen__WWEN_800x.jpg?v=1695103868" alt="Mobile Phone"></div>
+                <div class="product-info">
+                    <div class="product-name">Mobile Phone</div>
+                    <div class="product-price">$599.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('phone1', 'Mobile Phone', 599.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card" onclick="openModal('laptop1', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiQrqGNNTR7xwgo2dIb0enMOFgw_5N3X26dA&s', 'Laptop', 1299.99, '⭐⭐⭐⭐⭐ (4.9/5)', 'High-performance laptop for professionals', ['Intel i7 Processor', '16GB RAM', '512GB SSD', '14 inch Display', '8 Hour Battery', 'Aluminum Body'])">
+                <div class="product-image"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiQrqGNNTR7xwgo2dIb0enMOFgw_5N3X26dA&s" alt="Laptop"></div>
+                <div class="product-info">
+                    <div class="product-name">Laptop</div>
+                    <div class="product-price">$1,299.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('laptop1', 'Laptop', 1299.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card" onclick="openModal('camera1', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuNGdjIdNIOvAPNpYRi-VN5Nii-bfpEU3mJA&s', 'Camera', 899.99, '⭐⭐⭐⭐⭐ (4.7/5)', 'Professional grade digital camera', ['24MP Sensor', '4K Video', 'Wi-Fi & Bluetooth', 'Dual SD Card Slots', 'Weather Sealed', '3 inch Touchscreen'])">
+                <div class="product-image"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuNGdjIdNIOvAPNpYRi-VN5Nii-bfpEU3mJA&s" alt="Camera"></div>
+                <div class="product-info">
+                    <div class="product-name">Camera</div>
+                    <div class="product-price">$899.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('camera1', 'Camera', 899.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card" onclick="openModal('headphones1', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop', 'Audio Headphones', 349.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Premium noise-cancelling wireless headphones', ['Active Noise Cancellation', '40 Hour Battery', 'Bluetooth 5.0', 'Premium Sound Quality', 'Comfortable Design', 'Built-in Microphone'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop" alt="Audio Headphones"></div>
+                <div class="product-info">
+                    <div class="product-name">Audio Headphones</div>
+                    <div class="product-price">$349.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('headphones1', 'Audio Headphones', 349.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="product-card" onclick="openModal('watch1', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop', 'Smart Watch', 199.99, '⭐⭐⭐⭐ (4.6/5)', 'Feature-rich smartwatch for daily wear', ['Heart Rate Monitor', 'GPS Tracking', '5 Day Battery', 'Water Resistant', 'Multiple Sports Modes', 'Sleep Tracking'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop" alt="Smart Watch"></div>
+                <div class="product-info">
+                    <div class="product-name">Smart Watch</div>
+                    <div class="product-price">$199.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('watch1', 'Smart Watch', 199.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="product-card" onclick="openModal('speaker1', 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&h=500&fit=crop', 'Portable Speaker', 179.99, '⭐⭐⭐⭐⭐ (4.7/5)', 'Powerful portable Bluetooth speaker', ['360 Degree Sound', '24 Hour Battery', 'Waterproof Design', 'Bluetooth 5.0', 'Built-in Microphone', 'Compact Design'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop" alt="Portable Speaker"></div>
+                <div class="product-info">
+                    <div class="product-name">Portable Speaker</div>
+                    <div class="product-price">$179.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('speaker1', 'Portable Speaker', 179.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 7 -->
+            <div class="product-card" onclick="openModal('keyboard1', 'https://m.media-amazon.com/images/I/71ZRus2YNcL._AC_UF894,1000_QL80_.jpg', 'Mechanical Keyboard', 149.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Premium mechanical keyboard for gaming', ['RGB Backlight', 'Mechanical Switches', 'Programmable Keys', 'Wireless Connected', 'Ergonomic Design', 'USB Type-C'])">
+                <div class="product-image"><img src="https://m.media-amazon.com/images/I/71ZRus2YNcL._AC_UF894,1000_QL80_.jpg" alt="Mechanical Keyboard"></div>
+                <div class="product-info">
+                    <div class="product-name">Mechanical Keyboard</div>
+                    <div class="product-price">$149.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('keyboard1', 'Mechanical Keyboard', 149.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 8 -->
+            <div class="product-card" onclick="openModal('mouse1', 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=500&h=500&fit=crop', 'Gaming Mouse', 79.99, '⭐⭐⭐⭐ (4.5/5)', 'High-precision gaming mouse', ['16000 DPI Sensor', 'Customizable Buttons', 'Wireless Connection', 'Long Battery Life', 'Ergonomic Shape', 'RGB Lighting'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=400&fit=crop" alt="Gaming Mouse"></div>
+                <div class="product-info">
+                    <div class="product-name">Gaming Mouse</div>
+                    <div class="product-price">$79.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('mouse1', 'Gaming Mouse', 79.99, 'Electronics')">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <img id="modalImage" class="modal-image" src="" alt="">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="rating" id="modalRating"></div>
+        <div class="modal-price" id="modalPrice"></div>
+        <p id="modalDescription" style="color: #666; margin-bottom: 20px;"></p>
+        <div class="modal-section">
+            <h4>Key Features</h4>
+            <ul id="modalFeatures"></ul>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" onclick="addFromModal()">Add to Cart</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProduct = {};
+
+    function openModal(id, image, name, price, rating, description, features) {
+        currentProduct = { id, name, price, image, rating, description, features };
+        document.getElementById('modalImage').src = image;
+        document.getElementById('modalTitle').textContent = name;
+        document.getElementById('modalPrice').textContent = '$' + price.toFixed(2);
+        document.getElementById('modalRating').textContent = rating;
+        document.getElementById('modalDescription').textContent = description;
+        const featuresList = document.getElementById('modalFeatures');
+        featuresList.innerHTML = '';
+        features.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            featuresList.appendChild(li);
+        });
+        document.getElementById('productModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+    }
+
+    function addFromModal() {
+        addToCart(currentProduct.id, currentProduct.name, currentProduct.price, 'Electronics');
+        closeModal();
+    }
+
+    function addToCart(id, name, price, category) {
+        fetch('/add_to_cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, price, category })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Item added to cart!');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('productModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

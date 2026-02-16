@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .track-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .track-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .track-header h2 {
+        margin: 0;
+        font-size: 2.5em;
+        color: #2c3e50;
+    }
+
+    .order-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .order-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .info-block h3 {
+        color: #1a73e8;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #666;
+        font-weight: 600;
+    }
+
+    .info-value {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .tracking-timeline {
+        margin: 30px 0;
+        position: relative;
+    }
+
+    .timeline-item {
+        display: flex;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .timeline-marker {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #1a73e8, #667eea);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5em;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .timeline-marker.completed {
+        background: linear-gradient(135deg, #27ae60, #84fab0);
+    }
+
+    .timeline-content {
+        margin-left: 20px;
+        flex: 1;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1em;
+        margin-bottom: 5px;
+    }
+
+    .timeline-date {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .timeline-connector {
+        position: absolute;
+        left: 24px;
+        top: 50px;
+        width: 2px;
+        height: 30px;
+        background: #eee;
+        z-index: 1;
+    }
+
+    .timeline-item:last-child .timeline-connector {
+        display: none;
+    }
+
+    .timeline-item.completed .timeline-connector {
+        background: #27ae60;
+    }
+
+    .items-breakdown {
+        margin-top: 30px;
+    }
+
+    .items-breakdown h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+
+    .item-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 20px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .item-name {
+        font-weight: 600;
+    }
+
+    .item-qty {
+        text-align: center;
+    }
+
+    .item-price {
+        text-align: right;
+        color: #1a73e8;
+        font-weight: 600;
+    }
+
+    .order-total {
+        text-align: right;
+        padding-top: 20px;
+        border-top: 2px solid #1a73e8;
+        font-size: 1.3em;
+        font-weight: 700;
+        color: #1a73e8;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #1a73e8;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .back-link:hover {
+        color: #0d47a1;
+    }
+
+    @media (max-width: 768px) {
+        .order-info {
+            grid-template-columns: 1fr;
+        }
+
+        .item-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="track-container">
+    <a href="/orders" class="back-link">← Back to Orders</a>
+
+    <div class="track-header">
+        <h2>Track Your Order</h2>
+    </div>
+
+    {% if order %}
+    <div class="order-card">
+        <div class="order-info">
+            <div class="info-block">
+                <h3>Order Information</h3>
+                <div class="info-row">
+                    <span class="info-label">Order ID:</span>
+                    <span class="info-value">{{ order[0] }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tracking #:</span>
+                    <span class="info-value">{{ order[11] if order[11] else 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Order Date:</span>
+                    <span class="info-value">{{ order[13][0:10] if order[13] else 'N/A' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total Amount:</span>
+                    <span class="info-value">${{ "%.2f"|format(order[9]) }}</span>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <h3>Shipping Address</h3>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">{{ order[2] }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value">{{ order[4] }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Address:</span>
+                    <span class="info-value">{{ order[5] }}, {{ order[7] }} {{ order[8] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Timeline -->
+        <h3 style="color: #2c3e50; margin-bottom: 20px;">Shipment Status</h3>
+        <div class="tracking-timeline">
+            <div class="timeline-item completed">
+                <div class="timeline-marker">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Order Placed</div>
+                    <div class="timeline-date">{{ order[13][0:10] if order[13] else 'Recently' }}</div>
+                </div>
+                <div class="timeline-connector"></div>
+            </div>
+
+            {% if order[15] %}
+            <div class="timeline-item {% if order[16] in ['Processing', 'Packed'] %}completed{% endif %}">
+                <div class="timeline-marker">📦</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Order Processing & Packing</div>
+                    <div class="timeline-date">{{ order[15][0:10] if order[15] else 'In Progress' }}</div>
+                </div>
+                <div class="timeline-connector"></div>
+            </div>
+            {% endif %}
+
+            {% if order[15] %}
+            <div class="timeline-item completed">
+                <div class="timeline-marker">🚚</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Out for Delivery</div>
+                    <div class="timeline-date">In Transit</div>
+                    <div style="color: #666; font-size: 0.9em; margin-top: 5px;">Current Location: {{ order[14] if
+                        order[14] else 'Warehouse' }}</div>
+                </div>
+                <div class="timeline-connector"></div>
+            </div>
+            {% endif %}
+
+            <div class="timeline-item {% if order[16] == 'Delivered' %}completed{% endif %}">
+                <div class="timeline-marker">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Expected Delivery</div>
+                    <div class="timeline-date">{{ order[12] if order[12] else 'Pending' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Breakdown -->
+        <div class="items-breakdown">
+            <h3>Items in This Order</h3>
+            {% for item in items %}
+            <div class="item-row">
+                <div class="item-name">{{ item[0] }}</div>
+                <div class="item-qty">Qty: {{ item[2] }}</div>
+                <div class="item-price">${{ "%.2f"|format(item[4]) }}</div>
+            </div>
+            {% endfor %}
+
+            <div class="order-total">
+                Total: ${{ "%.2f"|format(order[9]) }}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="order-card">
+        <p style="text-align: center; color: #666;">Order not found.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

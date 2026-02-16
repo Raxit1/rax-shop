@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h1 class="mb-4">Welcome, {{ user }}! 🛍️</h1>
+            <p class="lead">Browse our amazing collection of products across different categories</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6 col-lg-3 mb-4">
+            <a href="/electronics" class="category-card">
+                <div class="category-box">
+                    <div class="category-icon">💻</div>
+                    <h3>Electronics</h3>
+                    <p>Laptops, Phones & More</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4">
+            <a href="/books" class="category-card">
+                <div class="category-box">
+                    <div class="category-icon">📚</div>
+                    <h3>Books</h3>
+                    <p>Fiction, Tech & More</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4">
+            <a href="/grocery" class="category-card">
+                <div class="category-box">
+                    <div class="category-icon">🛒</div>
+                    <h3>Grocery</h3>
+                    <p>Fresh & Organic Items</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4">
+            <a href="/fashion" class="category-card">
+                <div class="category-box">
+                    <div class="category-icon">👔</div>
+                    <h3>Fashion</h3>
+                    <p>Clothing & Accessories</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .category-card {
+            text-decoration: none;
+            display: block;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .category-card:hover {
+            text-decoration: none;
+            transform: translateY(-8px);
+        }
+
+        .category-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .category-card:hover .category-box {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .category-box h3 {
+            font-weight: 700;
+            margin: 10px 0;
+            font-size: 22px;
+        }
+
+        .category-box p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+    </style>
+</div>
+{% endblock %}

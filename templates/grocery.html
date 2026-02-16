@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 30px 0;
+        color: #333;
+        font-size: 2.5em;
+    }
+
+    .items {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .categories h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-size: 1.8em;
+    }
+
+    .products-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #84fab0, #8fd3f4);
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .product-name {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 1.5em;
+        color: #27ae60;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .product-button {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, #84fab0, #8fd3f4);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .product-button:hover {
+        transform: scale(1.05);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 2em;
+        cursor: pointer;
+        color: #666;
+        background: none;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .close-btn:hover {
+        color: #e84545;
+    }
+
+    .modal-image {
+        width: 100%;
+        height: 300px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        object-fit: cover;
+    }
+
+    .modal-title {
+        font-size: 2em;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-price {
+        font-size: 1.8em;
+        color: #27ae60;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .modal-section {
+        margin: 20px 0;
+    }
+
+    .modal-section h4 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .modal-section li {
+        padding: 8px 0;
+        color: #666;
+    }
+
+    .modal-section li:before {
+        content: "✓ ";
+        color: #27ae60;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .modal-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .modal-btn-primary {
+        background: linear-gradient(135deg, #84fab0, #8fd3f4);
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        transform: scale(1.05);
+    }
+
+    .modal-btn-secondary {
+        background: #f0f0f0;
+        color: #2c3e50;
+    }
+
+    .modal-btn-secondary:hover {
+        background: #e0e0e0;
+    }
+
+    .rating {
+        color: #ffc107;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+</style>
+<div class="items">
+    <div class="categories">
+        <h3>Fresh Groceries</h3>
+        <div class="products-container">
+            <!-- Product 1 -->
+            <div class="product-card" onclick="openModal('apple1', 'https://www.shutterstock.com/image-photo/red-apple-cut-half-water-260nw-2532255795.jpg', 'Fresh Apples (1kg)', 4.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Fresh, crisp apples for healthy eating', ['Organic', 'Fresh Picked', 'Rich in Fiber', 'High Vitamin C', 'No Pesticides', 'Long Shelf Life'])">
+                <div class="product-image"><img src="https://www.shutterstock.com/image-photo/red-apple-cut-half-water-260nw-2532255795.jpg" alt="Fresh Apples"></div>
+                <div class="product-info">
+                    <div class="product-name">Fresh Apples (1kg)</div>
+                    <div class="product-price">$4.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('apple1', 'Fresh Apples (1kg)', 4.99, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card" onclick="openModal('carrot1', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwK8JQrdI0eDduUc8sDuYrBxNl8mHZ05sZeA&s', 'Organic Carrots (500g)', 2.99, '⭐⭐⭐⭐ (4.6/5)', 'Crunchy organic carrots for cooking', ['100% Organic', 'Fresh Quality', 'Rich Taste', 'High Beta-Carotene', 'Farm Fresh', 'No Chemicals'])">
+                <div class="product-image"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwK8JQrdI0eDduUc8sDuYrBxNl8mHZ05sZeA&s" alt="Organic Carrots"></div>
+                <div class="product-info">
+                    <div class="product-name">Organic Carrots (500g)</div>
+                    <div class="product-price">$2.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('carrot1', 'Organic Carrots (500g)', 2.99, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card" onclick="openModal('broccoli1', 'https://media.istockphoto.com/id/1364035705/photo/fresh-broccoli-on-white-background.jpg?s=612x612&w=0&k=20&c=fEcEq65rKBmT8PltpAyg_-na0WomTJ6S6m04uXQQtJs=', 'Fresh Broccoli (1 head)', 3.49, '⭐⭐⭐⭐⭐ (4.7/5)', 'Green fresh broccoli for healthy meals', ['Nutrient Dense', 'Fresh Picked', 'Rich in Vitamins', 'High Fiber', 'Perfect for Cooking', 'Long Lasting'])">
+                <div class="product-image"><img src="https://media.istockphoto.com/id/1364035705/photo/fresh-broccoli-on-white-background.jpg?s=612x612&w=0&k=20&c=fEcEq65rKBmT8PltpAyg_-na0WomTJ6S6m04uXQQtJs=" alt="Fresh Broccoli"></div>
+                <div class="product-info">
+                    <div class="product-name">Fresh Broccoli (1 head)</div>
+                    <div class="product-price">$3.49</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('broccoli1', 'Fresh Broccoli (1 head)', 3.49, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card" onclick="openModal('tomato1', 'https://media.istockphoto.com/id/831570242/photo/three-juicy-red-tomatoes-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=bBrjZsWY4eg90OpA2S6cO3psGR1TFx8f4L0HAmIQqm4=', 'Fresh Tomatoes (1kg)', 3.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Garden fresh organic tomatoes', ['100% Organic', 'Farm Fresh', 'Rich Red Color', 'Perfect Ripeness', 'No Pesticides', 'Great Flavor'])">
+                <div class="product-image"><img src="https://media.istockphoto.com/id/831570242/photo/three-juicy-red-tomatoes-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=bBrjZsWY4eg90OpA2S6cO3psGR1TFx8f4L0HAmIQqm4=" alt="Fresh Tomatoes"></div>
+                <div class="product-info">
+                    <div class="product-name">Fresh Tomatoes (1kg)</div>
+                    <div class="product-price">$3.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('tomato1', 'Fresh Tomatoes (1kg)', 3.99, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="product-card" onclick="openModal('banana1', 'https://5.imimg.com/data5/SELLER/Default/2022/12/EK/NP/CN/49293026/fresh-banana-fruit.webp', 'Fresh Bananas (1 bunch)', 2.49, '⭐⭐⭐⭐⭐ (4.9/5)', 'Yellow ripe fresh bananas', ['Rich in Potassium', 'Sweet Taste', 'High Energy', 'Natural Sugars', 'Perfect Yellow', 'Best Bunch'])">
+                <div class="product-image"><img src="https://5.imimg.com/data5/SELLER/Default/2022/12/EK/NP/CN/49293026/fresh-banana-fruit.webp" alt="Fresh Bananas"></div>
+                <div class="product-info">
+                    <div class="product-name">Fresh Bananas (1 bunch)</div>
+                    <div class="product-price">$2.49</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('banana1', 'Fresh Bananas (1 bunch)', 2.49, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="product-card" onclick="openModal('lemon1', 'https://media.istockphoto.com/id/466175634/photo/lemon-fruit-with-half-and-leaves-isolated-on-white.jpg?s=612x612&w=0&k=20&c=yRkrtlYtXd1O2EsPaxzOI1TSJOQ3kaf8XUzPe1ODoOo=', 'Fresh Lemon (1 piece)', 1.99, '⭐⭐⭐⭐⭐ (4.7/5)', 'Juicy fresh lemon', ['Citrusy Taste', 'High Vitamin C', 'Natural Juice', 'Perfect for Drinks', 'Organic Quality', 'Freshly Picked'])">
+                <div class="product-image"><img src="https://media.istockphoto.com/id/466175634/photo/lemon-fruit-with-half-and-leaves-isolated-on-white.jpg?s=612x612&w=0&k=20&c=yRkrtlYtXd1O2EsPaxzOI1TSJOQ3kaf8XUzPe1ODoOo=" alt="Fresh Lemon"></div>
+                <div class="product-info">
+                    <div class="product-name">Fresh Lemon  (1 head)</div>
+                    <div class="product-price">$2.29</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('lettuce1', 'Fresh Lettuce (1 head)', 2.29, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 7 -->
+            <div class="product-card" onclick="openModal('pepper1', 'https://media.istockphoto.com/id/1130564105/photo/sweet-pepper-paprika-isolated-on-white-background-clipping-path-full-depth-of-field.jpg?s=612x612&w=0&k=20&c=m_01GdGMntpr6B3tiplqxbtPN8zTKN1xfucAaBu3Mkw=', 'Bell Peppers (3 pack)', 4.49, '⭐⭐⭐⭐⭐ (4.8/5)', 'Colorful fresh bell peppers', ['Mixed Colors', 'Sweet Flavor', 'Crunchy Fresh', 'Vitamin C Rich', 'Perfect for Cooking', 'Organic Quality'])">
+                <div class="product-image"><img src="https://media.istockphoto.com/id/1130564105/photo/sweet-pepper-paprika-isolated-on-white-background-clipping-path-full-depth-of-field.jpg?s=612x612&w=0&k=20&c=m_01GdGMntpr6B3tiplqxbtPN8zTKN1xfucAaBu3Mkw=" alt="Bell Peppers"></div>
+                <div class="product-info">
+                    <div class="product-name">Bell Peppers (3 pack)</div>
+                    <div class="product-price">$4.49</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('pepper1', 'Bell Peppers (3 pack)', 4.49, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 8 -->
+            <div class="product-card" onclick="openModal('spinach1', 'https://m.media-amazon.com/images/I/71tdN2taTCL.jpg', 'Fresh Spinach (250g)', 3.29, '⭐⭐⭐⭐⭐ (4.7/5)', 'Nutritious fresh spinach leaves', ['High Iron', 'Antioxidants', 'Dark Green Color', 'Organic Grown', 'Tender Leaves', 'Perfect for Cooking'])">
+                <div class="product-image"><img src="https://m.media-amazon.com/images/I/71tdN2taTCL.jpg" alt="Fresh Spinach"></div>
+                <div class="product-info">
+                    <div class="product-name">Fresh Spinach (250g)</div>
+                    <div class="product-price">$3.29</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('spinach1', 'Fresh Spinach (250g)', 3.29, 'Grocery')">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <img id="modalImage" class="modal-image" src="" alt="">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="rating" id="modalRating"></div>
+        <div class="modal-price" id="modalPrice"></div>
+        <p id="modalDescription" style="color: #666; margin-bottom: 20px;"></p>
+        <div class="modal-section">
+            <h4>Key Features</h4>
+            <ul id="modalFeatures"></ul>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" onclick="addFromModal()">Add to Cart</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProduct = {};
+
+    function openModal(id, image, name, price, rating, description, features) {
+        currentProduct = { id, name, price, image, rating, description, features };
+        document.getElementById('modalImage').src = image;
+        document.getElementById('modalTitle').textContent = name;
+        document.getElementById('modalPrice').textContent = '$' + price.toFixed(2);
+        document.getElementById('modalRating').textContent = rating;
+        document.getElementById('modalDescription').textContent = description;
+        const featuresList = document.getElementById('modalFeatures');
+        featuresList.innerHTML = '';
+        features.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            featuresList.appendChild(li);
+        });
+        document.getElementById('productModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+    }
+
+    function addFromModal() {
+        addToCart(currentProduct.id, currentProduct.name, currentProduct.price, 'Grocery');
+        closeModal();
+    }
+
+    function addToCart(id, name, price, category) {
+        fetch('/add_to_cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, price, category })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Item added to cart!');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('productModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

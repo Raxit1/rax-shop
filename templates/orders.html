@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .orders-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .orders-header h2 {
+        margin: 0;
+        font-size: 2.5em;
+        color: #2c3e50;
+    }
+
+    .no-orders {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+        color: #666;
+    }
+
+    .no-orders i {
+        font-size: 4em;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .orders-table thead {
+        background: linear-gradient(135deg, #1a73e8, #667eea);
+        color: white;
+    }
+
+    .orders-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .orders-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .orders-table tbody tr:hover {
+        background: #f9f9f9;
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: #1a73e8;
+    }
+
+    .order-status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9em;
+    }
+
+    .status-processing {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-shipped {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .status-delivered {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .order-amount {
+        color: #1a73e8;
+        font-weight: 600;
+    }
+
+    .track-btn {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #1a73e8, #667eea);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: 0.3s;
+        display: inline-block;
+    }
+
+    .track-btn:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        .orders-table {
+            font-size: 0.9em;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 10px;
+        }
+    }
+</style>
+
+<div class="orders-container">
+    <div class="orders-header">
+        <h2>My Orders</h2>
+    </div>
+
+    {% if orders %}
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Tracking #</th>
+                <th>Location</th>
+                <th>Est. Delivery</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td class="order-id">{{ order[0] }}</td>
+                <td class="order-amount">${{ "%.2f"|format(order[2]) }}</td>
+                <td>
+                    {% if order[4] == 'Processing' %}
+                    <span class="order-status status-processing">Processing</span>
+                    {% elif order[4] == 'Shipped' %}
+                    <span class="order-status status-shipped">Shipped</span>
+                    {% else %}
+                    <span class="order-status status-delivered">Delivered</span>
+                    {% endif %}
+                </td>
+                <td>{{ order[5] if order[5] else 'N/A' }}</td>
+                <td>{{ order[6] if order[6] else 'Warehouse' }}</td>
+                <td>{{ order[7] if order[7] else 'Pending' }}</td>
+                <td>
+                    <a href="/track_order/{{ order[0] }}" class="track-btn">Track Order</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-orders">
+        <i class="fas fa-shopping-bags"></i>
+        <h3>No Orders Yet</h3>
+        <p>You haven't placed any orders yet. Start shopping now!</p>
+        <a href="/electronics"
+            style="display: inline-block; margin-top: 20px; padding: 12px 30px; background: #1a73e8; color: white; text-decoration: none; border-radius: 30px; transition: 0.3s;">Start
+            Shopping</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

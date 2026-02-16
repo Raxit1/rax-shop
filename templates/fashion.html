@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 30px 0;
+        color: #333;
+        font-size: 2.5em;
+    }
+
+    .items {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .categories h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-size: 1.8em;
+    }
+
+    .products-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .product-name {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 1.5em;
+        color: #f5576c;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .product-button {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .product-button:hover {
+        transform: scale(1.05);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: fixed;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 2em;
+        cursor: pointer;
+        color: #666;
+        background: none;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .close-btn:hover {
+        color: #e84545;
+    }
+
+    .modal-image {
+        width: 100%;
+        height: 300px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        object-fit: cover;
+    }
+
+    .modal-title {
+        font-size: 2em;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-price {
+        font-size: 1.8em;
+        color: #f5576c;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .modal-section {
+        margin: 20px 0;
+    }
+
+    .modal-section h4 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .modal-section li {
+        padding: 8px 0;
+        color: #666;
+    }
+
+    .modal-section li:before {
+        content: "✓ ";
+        color: #27ae60;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .modal-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .modal-btn-primary {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        transform: scale(1.05);
+    }
+
+    .modal-btn-secondary {
+        background: #f0f0f0;
+        color: #2c3e50;
+    }
+
+    .modal-btn-secondary:hover {
+        background: #e0e0e0;
+    }
+
+    .rating {
+        color: #ffc107;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="items">
+    <div class="categories">
+        <h3>Featured Fashion Items</h3>
+        <div class="products-container">
+            <!-- Product 1 -->
+            <div class="product-card" onclick="openModal('shirt1', 'https://thefoomer.in/cdn/shop/products/jpeg-optimizer_PATP5156.jpg?v=1680162712', 'Men\'s Formal Shirt', 49.99, '⭐⭐⭐⭐⭐ (4.7/5)', 'Premium formal shirt for professionals', ['100% Cotton', 'Easy Care', 'Multiple Sizes', 'Regular Fit', 'Wrinkle-Free', 'Machine Washable'])">
+                <div class="product-image"><img src="https://thefoomer.in/cdn/shop/products/jpeg-optimizer_PATP5156.jpg?v=1680162712" alt="Men's Formal Shirt"></div>
+                <div class="product-info">
+                    <div class="product-name">Men's Formal Shirt</div>
+                    <div class="product-price">$49.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('shirt1', 'Men\'s Formal Shirt', 49.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card" onclick="openModal('dress1', 'https://www.bullionknot.com/cdn/shop/files/Lipika-02.jpg?v=1753954225&width=1200', 'Women\'s Dress', 79.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Elegant women\'s dress for any occasion', ['Comfortable Fit', 'Beautiful Design', 'Multiple Colors', 'Party Ready', 'Breathable Fabric', 'Hand Washable'])">
+                <div class="product-image"><img src="https://www.bullionknot.com/cdn/shop/files/Lipika-02.jpg?v=1753954225&width=1200" alt="Women's Dress"></div>
+                <div class="product-info">
+                    <div class="product-name">Women's Dress</div>
+                    <div class="product-price">$79.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('dress1', 'Women\'s Dress', 79.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card" onclick="openModal('jeans1', 'https://cantabilshop.com/cdn/shop/products/MDNM00403_LTHILLIUM_1.jpg?v=1757052556', 'Denim Jeans', 69.99, '⭐⭐⭐⭐ (4.6/5)', 'Classic denim jeans for everyday wear', ['Premium Denim', 'Comfortable', 'All Sizes', 'Fade Resistant', 'Durable', 'Deep Blue Color'])">
+                <div class="product-image"><img src="https://cantabilshop.com/cdn/shop/products/MDNM00403_LTHILLIUM_1.jpg?v=1757052556" alt="Denim Jeans"></div>
+                <div class="product-info">
+                    <div class="product-name">Denim Jeans</div>
+                    <div class="product-price">$69.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('jeans1', 'Denim Jeans', 69.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card" onclick="openModal('tshirt1', 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop', 'Casual T-Shirt', 24.99, '⭐⭐⭐⭐ (4.5/5)', 'Comfortable casual t-shirt for daily wear', ['Soft Fabric', 'Breathable', 'Multiple Colors', 'Easy Wash', 'Great Fit', 'All Sizes'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop" alt="Casual T-Shirt"></div>
+                <div class="product-info">
+                    <div class="product-name">Casual T-Shirt</div>
+                    <div class="product-price">$24.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('tshirt1', 'Casual T-Shirt', 24.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="product-card" onclick="openModal('hoodie1', 'https://media.istockphoto.com/id/1142211733/photo/front-of-sweatshirt-with-hood-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=inMPwtP-ebqhXD9_A3bHETPkyC37x0rFNSLYgf6rLMM=', 'Hoodie Sweatshirt', 54.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Warm and cozy hoodie for cold weather', ['Plush Fabric', 'Drawstring Hood', 'Kangaroo Pocket', 'Easy Maintenance', 'Durable', 'Various Colors'])">
+                <div class="product-image"><img src="https://media.istockphoto.com/id/1142211733/photo/front-of-sweatshirt-with-hood-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=inMPwtP-ebqhXD9_A3bHETPkyC37x0rFNSLYgf6rLMM=" alt="Hoodie Sweatshirt"></div>
+                <div class="product-info">
+                    <div class="product-name">Hoodie Sweatshirt</div>
+                    <div class="product-price">$54.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('hoodie1', 'Hoodie Sweatshirt', 54.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="product-card" onclick="openModal('shoes1', 'https://m.media-amazon.com/images/I/71pl8w5xXJL._AC_UY1000_.jpg', 'Women\'s Shoes', 89.99, '⭐⭐⭐⭐⭐ (4.7/5)', 'Stylish women\'s shoes for any occasion', ['Premium Quality', 'Comfortable', 'Non-Slip Sole', 'Elegant Design', 'Breathable', 'All Sizes'])">
+                <div class="product-image"><img src="https://m.media-amazon.com/images/I/71pl8w5xXJL._AC_UY1000_.jpg" alt="Women's Shoes"></div>
+                <div class="product-info">
+                    <div class="product-name">Women's Shoes</div>
+                    <div class="product-price">$89.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('shoes1', 'Women\'s Shoes', 89.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 7 -->
+            <div class="product-card" onclick="openModal('bag1', 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=500&fit=crop', 'Handbag', 129.99, '⭐⭐⭐⭐⭐ (4.9/5)', 'Premium handbag with elegant design', ['Genuine Material', 'Spacious', 'Strong Handles', 'Multiple Pockets', 'Fashionable', 'Durable'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop" alt="Handbag"></div>
+                <div class="product-info">
+                    <div class="product-name">Handbag</div>
+                    <div class="product-price">$129.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('bag1', 'Handbag', 129.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 8 -->
+            <div class="product-card" onclick="openModal('scarf1', 'https://m.media-amazon.com/images/I/61u4jOe1DFL._AC_UF1000,1000_QL80_.jpg', 'Winter Scarf', 34.99, '⭐⭐⭐⭐ (4.4/5)', 'Warm and stylish winter scarf', ['Soft Wool', 'Warm Material', 'Fashion Forward', 'All Ages', 'Easy Care', 'Multiple Colors'])">
+                <div class="product-image"><img src="https://m.media-amazon.com/images/I/61u4jOe1DFL._AC_UF1000,1000_QL80_.jpg" alt="Winter Scarf"></div>
+                <div class="product-info">
+                    <div class="product-name">Winter Scarf</div>
+                    <div class="product-price">$34.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('scarf1', 'Winter Scarf', 34.99, 'Fashion')">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <img id="modalImage" class="modal-image" src="" alt="">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="rating" id="modalRating"></div>
+        <div class="modal-price" id="modalPrice"></div>
+        <p id="modalDescription" style="color: #666; margin-bottom: 20px;"></p>
+        <div class="modal-section">
+            <h4>Key Features</h4>
+            <ul id="modalFeatures"></ul>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" onclick="addFromModal()">Add to Cart</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProduct = {};
+
+    function openModal(id, image, name, price, rating, description, features) {
+        currentProduct = { id, name, price, image, rating, description, features };
+        document.getElementById('modalImage').src = image;
+        document.getElementById('modalTitle').textContent = name;
+        document.getElementById('modalPrice').textContent = '$' + price.toFixed(2);
+        document.getElementById('modalRating').textContent = rating;
+        document.getElementById('modalDescription').textContent = description;
+        const featuresList = document.getElementById('modalFeatures');
+        featuresList.innerHTML = '';
+        features.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            featuresList.appendChild(li);
+        });
+        document.getElementById('productModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+    }
+
+    function addFromModal() {
+        addToCart(currentProduct.id, currentProduct.name, currentProduct.price, 'Fashion');
+        closeModal();
+    }
+
+    function addToCart(id, name, price, category) {
+        fetch('/add_to_cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, price, category })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Item added to cart!');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('productModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

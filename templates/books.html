@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 30px 0;
+        color: #333;
+        font-size: 2.5em;
+    }
+
+    .items {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .categories h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-size: 1.8em;
+    }
+
+    .products-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .product-name {
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 1.5em;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .product-button {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .product-button:hover {
+        transform: scale(1.05);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: fixed;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 2em;
+        cursor: pointer;
+        color: #666;
+        background: none;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .close-btn:hover {
+        color: #e84545;
+    }
+
+    .modal-image {
+        width: 100%;
+        height: 300px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        object-fit: cover;
+    }
+
+    .modal-title {
+        font-size: 2em;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-price {
+        font-size: 1.8em;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .modal-section {
+        margin: 20px 0;
+    }
+
+    .modal-section h4 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .modal-section li {
+        padding: 8px 0;
+        color: #666;
+    }
+
+    .modal-section li:before {
+        content: "✓ ";
+        color: #27ae60;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .modal-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .modal-btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        transform: scale(1.05);
+    }
+
+    .modal-btn-secondary {
+        background: #f0f0f0;
+        color: #2c3e50;
+    }
+
+    .modal-btn-secondary:hover {
+        background: #e0e0e0;
+    }
+
+    .rating {
+        color: #ffc107;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+</style>
+<div class="items">
+    <div class="categories">
+        <h3>Featured Books</h3>
+        <div class="products-container">
+            <!-- Product 1 -->
+            <div class="product-card" onclick="openModal('fiction1', 'https://www.crossword.in/cdn/shop/files/81Lfw-skUsL._SL1500.jpg?v=1757741415', 'The Great Novel', 24.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'An epic fiction novel with compelling storytelling', ['Hardcover', '450 Pages', 'Award Winner', 'Bestseller', 'Fiction', 'Award Winning'])">
+                <div class="product-image"><img src="https://www.crossword.in/cdn/shop/files/81Lfw-skUsL._SL1500.jpg?v=1757741415" alt="The Great Novel"></div>
+                <div class="product-info">
+                    <div class="product-name">The Great Novel</div>
+                    <div class="product-price">$24.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('fiction1', 'The Great Novel', 24.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card" onclick="openModal('python1', 'https://www.wileyindia.com/pub/media/catalog/product/cache/20f980a1f90e8cec7a3c8f2cf40a32a8/9/7/9789357465304_1.jpg', 'Python Programming', 34.99, '⭐⭐⭐⭐⭐ (4.9/5)', 'Master Python with this comprehensive guide', ['Technical', '600 Pages', 'Code Examples', 'Beginner Friendly', 'Complete Guide', 'Latest Version'])">
+                <div class="product-image"><img src="https://www.wileyindia.com/pub/media/catalog/product/cache/20f980a1f90e8cec7a3c8f2cf40a32a8/9/7/9789357465304_1.jpg" alt="Python Programming"></div>
+                <div class="product-info">
+                    <div class="product-name">Python Programming</div>
+                    <div class="product-price">$34.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('python1', 'Python Programming', 34.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card" onclick="openModal('science1', 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=500&h=500&fit=crop', 'Science Explained', 28.99, '⭐⭐⭐⭐ (4.7/5)', 'Complex science made simple and fun', ['Educational', '380 Pages', 'Illustrations', 'Fun Facts', 'Science', 'Interactive'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=400&fit=crop" alt="Science Explained"></div>
+                <div class="product-info">
+                    <div class="product-name">Science Explained</div>
+                    <div class="product-price">$28.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('science1', 'Science Explained', 28.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card" onclick="openModal('business1', 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&h=500&fit=crop', 'Business Success', 32.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Learn strategies from successful entrepreneurs', ['Business', '520 Pages', 'Case Studies', 'Practical Tips', 'Success Stories', 'Real Examples'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=400&fit=crop" alt="Business Success"></div>
+                <div class="product-info">
+                    <div class="product-name">Business Success</div>
+                    <div class="product-price">$32.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('business1', 'Business Success', 32.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="product-card" onclick="openModal('mystery1', 'https://m.media-amazon.com/images/I/71D9loFTEGL._AC_UF1000,1000_QL80_.jpg', 'Mystery Thriller', 26.99, '⭐⭐⭐⭐ (4.6/5)', 'Suspenseful mystery with unexpected twists', ['Thriller', '400 Pages', 'Page Turner', 'Suspenseful', 'Mystery', 'Plot Twist'])">
+                <div class="product-image"><img src="https://m.media-amazon.com/images/I/71D9loFTEGL._AC_UF1000,1000_QL80_.jpg" alt="Mystery Thriller"></div>
+                <div class="product-info">
+                    <div class="product-name">Mystery Thriller</div>
+                    <div class="product-price">$26.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('mystery1', 'Mystery Thriller', 26.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="product-card" onclick="openModal('history1', 'https://cdn.exoticindia.com/images/products/thumbnails/t800x600/books-2019-015/nbz456.jpg', 'World History', 30.99, '⭐⭐⭐⭐⭐ (4.7/5)', 'Fascinating tales from human civilization', ['History', '550 Pages', 'Maps', 'Timeline', 'Historical', 'Detailed'])">
+                <div class="product-image"><img src="https://cdn.exoticindia.com/images/products/thumbnails/t800x600/books-2019-015/nbz456.jpg" alt="World History"></div>
+                <div class="product-info">
+                    <div class="product-name">World History</div>
+                    <div class="product-price">$30.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('history1', 'World History', 30.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 7 -->
+            <div class="product-card" onclick="openModal('selfhelp1', 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=500&h=500&fit=crop', 'Self Help Guide', 22.99, '⭐⭐⭐⭐ (4.5/5)', 'Transform your life with proven techniques', ['Self Help', '320 Pages', 'Exercises', 'Motivational', 'Practical', 'Life Changing'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=400&fit=crop" alt="Self Help Guide"></div>
+                <div class="product-info">
+                    <div class="product-name">Self Help Guide</div>
+                    <div class="product-price">$22.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('selfhelp1', 'Self Help Guide', 22.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 8 -->
+            <div class="product-card" onclick="openModal('fantasy1', 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=500&h=500&fit=crop', 'Fantasy Adventure', 27.99, '⭐⭐⭐⭐⭐ (4.8/5)', 'Epic fantasy with magical worlds and adventures', ['Fantasy', '480 Pages', 'Epic Journey', 'Magic', 'Adventure', 'Series'])">
+                <div class="product-image"><img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=400&fit=crop" alt="Fantasy Adventure"></div>
+                <div class="product-info">
+                    <div class="product-name">Fantasy Adventure</div>
+                    <div class="product-price">$27.99</div>
+                    <button class="product-button" onclick="event.stopPropagation(); addToCart('fantasy1', 'Fantasy Adventure', 27.99, 'Books')">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <img id="modalImage" class="modal-image" src="" alt="">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="rating" id="modalRating"></div>
+        <div class="modal-price" id="modalPrice"></div>
+        <p id="modalDescription" style="color: #666; margin-bottom: 20px;"></p>
+        <div class="modal-section">
+            <h4>Key Features</h4>
+            <ul id="modalFeatures"></ul>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-primary" onclick="addFromModal()">Add to Cart</button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentProduct = {};
+
+    function openModal(id, image, name, price, rating, description, features) {
+        currentProduct = { id, name, price, image, rating, description, features };
+        document.getElementById('modalImage').src = image;
+        document.getElementById('modalTitle').textContent = name;
+        document.getElementById('modalPrice').textContent = '$' + price.toFixed(2);
+        document.getElementById('modalRating').textContent = rating;
+        document.getElementById('modalDescription').textContent = description;
+        const featuresList = document.getElementById('modalFeatures');
+        featuresList.innerHTML = '';
+        features.forEach(feature => {
+            const li = document.createElement('li');
+            li.textContent = feature;
+            featuresList.appendChild(li);
+        });
+        document.getElementById('productModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+    }
+
+    function addFromModal() {
+        addToCart(currentProduct.id, currentProduct.name, currentProduct.price, 'Books');
+        closeModal();
+    }
+
+    function addToCart(id, name, price, category) {
+        fetch('/add_to_cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, price, category })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Item added to cart!');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('productModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

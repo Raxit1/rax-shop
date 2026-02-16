@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- <link rel="" href="/statics/style.css"> -->
+    <!-- <link rel="stylesheet" href="/statics/style.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+
+</head>
+
+<body>
+
+    <form action="/login_user" method="POST">
+        <h2 style=" text-align: center;">Login</h2>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="Mobile No" name="Mobile NO" placeholder="Mobile No" required>
+        <input type="password" name="password" placeholder="Password" required>
+
+        <button>Login</button>
+        <a href="/register">Register</a>
+    </form>
+
+</body>
+
+</html>

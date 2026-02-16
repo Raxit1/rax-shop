@@ -1,0 +1,11 @@
+{
+  "editor.defaultFormatter": null,
+  "[html]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": false
+  },
+  "[jinja]": {
+    "editor.formatOnSave": false
+  },
+  "prettier.ignorePath": ".prettierignore"
+}

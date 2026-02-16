@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- <link rel="stylesheet" href="/static/style.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+
+</head>
+
+<body>
+    <h2 style="margin-top:-25%;text-align: center;margin-right: -12%;">Register</h2>
+    <form action="/register_user" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="text" name="MobileNo" placeholder="MobileNo" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button>Register</button>
+        <a href="/">Login</a>
+    </form>
+
+</body>
+
+</html>
