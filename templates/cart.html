@@ -283,7 +283,7 @@
             item.quantity = Math.max(1, item.quantity + change);
             sessionStorage.setItem('cart', JSON.stringify(currentCart));
 
-            // Update the form and submit
+            
             fetch(`/update_quantity/${itemId}/${item.quantity}`, { method: 'POST' })
                 .then(() => location.reload());
         }
