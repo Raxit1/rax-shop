@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 
 def get_db():
-    sqlite3.connect("/tmp/users.db")
+    return sqlite3.connect("users.db")
 
 # Create tables
 conn = get_db()
@@ -357,5 +357,3 @@ def logout():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
