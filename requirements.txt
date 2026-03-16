@@ -29,3 +29,6 @@ charset-normalizer
 colorama
 packaging
 greenlet
+Flask
+Flask-SQLAlchemy
+gunicorn
