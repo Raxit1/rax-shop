@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 
 def get_db():
-    return sqlite3.connect("users.db")
+    sqlite3.connect("/tmp/users.db")
 
 # Create tables
 conn = get_db()
