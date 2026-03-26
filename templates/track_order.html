@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <style>
   .track-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 40px auto;
     padding: 20px;
   }
@@ -17,32 +17,72 @@
     color: #2c3e50;
   }
 
+  .track-header p {
+    color: #666;
+    margin-top: 10px;
+  }
+
   .order-card {
     background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
     margin-bottom: 30px;
   }
 
-  .order-info {
+  .order-status-bar {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .order-status-bar .order-id {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .status-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+  }
+
+  .order-info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
   }
 
-  .info-block h3 {
-    color: #1a73e8;
+  .info-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .info-section h4 {
+    color: #667eea;
     margin-bottom: 15px;
-    font-size: 1.1em;
+    font-size: 16px;
+    font-weight: 600;
+    border-left: 3px solid #667eea;
+    padding-left: 10px;
   }
 
   .info-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   .info-row:last-child {
@@ -51,140 +91,211 @@
 
   .info-label {
     color: #666;
-    font-weight: 600;
+    font-size: 14px;
   }
 
   .info-value {
-    color: #2c3e50;
-    font-weight: 600;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
   }
 
   .tracking-timeline {
-    margin: 30px 0;
-    position: relative;
+    padding: 30px;
+    background: white;
   }
 
-  .timeline-item {
-    display: flex;
+  .timeline-title {
     margin-bottom: 30px;
-    position: relative;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
   }
 
-  .timeline-marker {
+  .timeline-progress {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin: 40px 0;
+  }
+
+  .progress-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .progress-step:before {
+    content: "";
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background: #e0e0e0;
+    z-index: -1;
+  }
+
+  .progress-step:first-child:before {
+    content: none;
+  }
+
+  .progress-step.completed:before {
+    background: #27ae60;
+  }
+
+  .step-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, #1a73e8, #667eea);
+    background: white;
+    border: 3px solid #e0e0e0;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 1.5em;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 2;
+    margin: 0 auto 15px;
+    font-size: 20px;
+    transition: all 0.3s;
   }
 
-  .timeline-marker.completed {
-    background: linear-gradient(135deg, #27ae60, #84fab0);
-  }
-
-  .timeline-content {
-    margin-left: 20px;
-    flex: 1;
-  }
-
-  .timeline-title {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-  }
-
-  .timeline-date {
-    color: #666;
-    font-size: 0.9em;
-  }
-
-  .timeline-connector {
-    position: absolute;
-    left: 24px;
-    top: 50px;
-    width: 2px;
-    height: 30px;
-    background: #eee;
-    z-index: 1;
-  }
-
-  .timeline-item:last-child .timeline-connector {
-    display: none;
-  }
-
-  .timeline-item.completed .timeline-connector {
+  .progress-step.completed .step-icon {
     background: #27ae60;
+    border-color: #27ae60;
+    color: white;
   }
 
-  .items-breakdown {
-    margin-top: 30px;
+  .progress-step.active .step-icon {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    animation: pulse 2s infinite;
   }
 
-  .items-breakdown h3 {
-    color: #2c3e50;
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+  }
+
+  .step-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .step-date {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .step-desc {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+  }
+
+  .items-section {
+    padding: 30px;
+    border-top: 1px solid #e0e0e0;
+    background: white;
+  }
+
+  .items-section h4 {
     margin-bottom: 20px;
+    color: #333;
+    font-size: 18px;
   }
 
-  .item-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .items-table th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .items-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .total-section {
+    margin-top: 20px;
+    text-align: right;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: flex-end;
     gap: 20px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    padding: 5px 0;
   }
 
-  .item-name {
-    font-weight: 600;
-  }
-
-  .item-qty {
-    text-align: center;
-  }
-
-  .item-price {
-    text-align: right;
-    color: #1a73e8;
-    font-weight: 600;
-  }
-
-  .order-total {
-    text-align: right;
-    padding-top: 20px;
-    border-top: 2px solid #1a73e8;
-    font-size: 1.3em;
+  .total-row.grand-total {
+    font-size: 18px;
     font-weight: 700;
-    color: #1a73e8;
+    color: #667eea;
+    border-top: 2px solid #e0e0e0;
+    margin-top: 10px;
+    padding-top: 10px;
   }
 
   .back-link {
     display: inline-block;
     margin-bottom: 20px;
-    color: #1a73e8;
+    color: #667eea;
     text-decoration: none;
     transition: 0.3s;
   }
 
   .back-link:hover {
-    color: #0d47a1;
+    color: #764ba2;
   }
 
   @media (max-width: 768px) {
-    .order-info {
-      grid-template-columns: 1fr;
+    .order-status-bar {
+      flex-direction: column;
+      text-align: center;
     }
 
-    .item-row {
+    .order-info-grid {
       grid-template-columns: 1fr;
+      padding: 20px;
+    }
+
+    .timeline-progress {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .progress-step:before {
+      display: none;
+    }
+
+    .items-table {
+      font-size: 14px;
+    }
+
+    .items-table th,
+    .items-table td {
+      padding: 8px;
     }
   }
 </style>
@@ -194,127 +305,264 @@
 
   <div class="track-header">
     <h2>Track Your Order</h2>
+    <p>Real-time updates on your order status</p>
   </div>
 
   {% if order %}
   <div class="order-card">
-    <div class="order-info">
-      <div class="info-block">
-        <h3>Order Information</h3>
-        <div class="info-row">
-          <span class="info-label">Order ID:</span>
-          <span class="info-value">{{ order[0] }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Tracking #:</span>
-          <span class="info-value"
-            >{{ order[11] if order[11] else 'N/A' }}</span
-          >
-        </div>
-        <div class="info-row">
-          <span class="info-label">Order Date:</span>
-          <span class="info-value"
-            >{{ order[13][0:10] if order[13] else 'N/A' }}</span
-          >
-        </div>
-        <div class="info-row">
-          <span class="info-label">Total Amount:</span>
-          <span class="info-value">${{ "%.2f"|format(order[9]) }}</span>
-        </div>
+    <div class="order-status-bar">
+      <div class="order-id">
+        <i class="fas fa-hashtag"></i> Order #{{ order[1] }}
       </div>
+      <div class="status-badge">
+        <i
+          class="fas fa-{{ 'clock' if order[12] == 'Processing' else 'truck' if order[12] == 'Shipped' else 'check-circle' }}"
+        ></i>
+        Current Status: {{ order[12] if order|length > 12 else 'Processing' }}
+      </div>
+      <div>
+        <i class="fas fa-calendar"></i>
+        Ordered on: {{ order[13][:10] if order|length > 13 and order[13] else
+        'Just now' }}
+      </div>
+    </div>
 
-      <div class="info-block">
-        <h3>Shipping Address</h3>
+    <div class="order-info-grid">
+      <div class="info-section">
+        <h4><i class="fas fa-user"></i> Customer Details</h4>
         <div class="info-row">
           <span class="info-label">Name:</span>
-          <span class="info-value">{{ order[2] }}</span>
+          <span class="info-value">{{ order[3] }}</span>
         </div>
         <div class="info-row">
-          <span class="info-label">Phone:</span>
+          <span class="info-label">Email:</span>
           <span class="info-value">{{ order[4] }}</span>
         </div>
         <div class="info-row">
+          <span class="info-label">Phone:</span>
+          <span class="info-value">{{ order[5] }}</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4><i class="fas fa-map-marker-alt"></i> Shipping Address</h4>
+        <div class="info-row">
           <span class="info-label">Address:</span>
           <span class="info-value"
-            >{{ order[5] }}, {{ order[7] }} {{ order[8] }}</span
+            >{{ order[6] }}, {{ order[7] }} - {{ order[8] }}</span
+          >
+        </div>
+        <div class="info-row">
+          <span class="info-label">Payment Method:</span>
+          <span class="info-value">{{ order[9] }}</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4><i class="fas fa-truck"></i> Delivery Information</h4>
+        <div class="info-row">
+          <span class="info-label">Tracking Number:</span>
+          <span class="info-value">
+            <strong
+              >{{ order[14] if order|length > 14 and order[14] else 'Will be
+              assigned soon' }}</strong
+            >
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Current Location:</span>
+          <span class="info-value"
+            >{{ order[15] if order|length > 15 and order[15] else 'Processing at
+            warehouse' }}</span
+          >
+        </div>
+        <div class="info-row">
+          <span class="info-label">Est. Delivery:</span>
+          <span class="info-value"
+            >{{ order[17] if order|length > 17 and order[17] else '3-5 business
+            days' }}</span
           >
         </div>
       </div>
     </div>
 
-    <!-- Tracking Timeline -->
-    <h3 style="color: #2c3e50; margin-bottom: 20px">Shipment Status</h3>
+    <!-- Timeline Progress -->
     <div class="tracking-timeline">
-      <div class="timeline-item completed">
-        <div class="timeline-marker">✓</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Order Placed</div>
-          <div class="timeline-date">
-            {{ order[13][0:10] if order[13] else 'Recently' }}
+      <div class="timeline-title">
+        <i class="fas fa-chart-line"></i> Order Progress
+      </div>
+      <div class="timeline-progress">
+        <!-- Step 1: Order Placed -->
+        <div class="progress-step completed">
+          <div class="step-icon">✓</div>
+          <div class="step-label">Order Placed</div>
+          <div class="step-date">
+            {{ order[13][:10] if order|length > 13 and order[13] else 'Just now'
+            }}
+          </div>
+          <div class="step-desc">Your order has been confirmed</div>
+        </div>
+
+        <!-- Step 2: Processing -->
+        <div
+          class="progress-step {% if order[12] != 'Processing' %}completed{% elif order[12] == 'Processing' %}active{% endif %}"
+        >
+          <div class="step-icon">
+            {% if order[12] != 'Processing' %}✓{% else %}⏳{% endif %}
+          </div>
+          <div class="step-label">Processing</div>
+          <div class="step-date">
+            {% if order[12] != 'Processing' %} Completed {% else %} In Progress
+            {% endif %}
+          </div>
+          <div class="step-desc">
+            {% if order[12] != 'Processing' %} Order processed and packed {%
+            else %} We're preparing your items {% endif %}
           </div>
         </div>
-        <div class="timeline-connector"></div>
+
+        <!-- Step 3: Shipped -->
+        <div
+          class="progress-step {% if order[12] == 'Shipped' %}active{% elif order[12] == 'Delivered' %}completed{% endif %}"
+        >
+          <div class="step-icon">
+            {% if order[12] == 'Delivered' %}✓{% elif order[12] == 'Shipped'
+            %}🚚{% else %}📦{% endif %}
+          </div>
+          <div class="step-label">Shipped</div>
+          <div class="step-date">
+            {% if order[12] == 'Shipped' %} Just shipped! {% elif order[12] ==
+            'Delivered' %} Shipped on: {{ order[15] if order|length > 15 else
+            'N/A' }} {% else %} Not yet shipped {% endif %}
+          </div>
+          <div class="step-desc">
+            {% if order[12] == 'Shipped' %} Your order is on the way! {% elif
+            order[12] == 'Delivered' %} Package in transit {% else %} Will be
+            shipped soon {% endif %}
+          </div>
+        </div>
+
+        <!-- Step 4: Delivered -->
+        <div
+          class="progress-step {% if order[12] == 'Delivered' %}completed{% endif %}"
+        >
+          <div class="step-icon">
+            {% if order[12] == 'Delivered' %}🎉{% else %}🎯{% endif %}
+          </div>
+          <div class="step-label">Delivered</div>
+          <div class="step-date">
+            {% if order[12] == 'Delivered' %} {{ order[17] if order|length > 17
+            else 'Delivered' }} {% else %} Expected: {{ order[17] if
+            order|length > 17 and order[17] else '3-5 days' }} {% endif %}
+          </div>
+          <div class="step-desc">
+            {% if order[12] == 'Delivered' %} Successfully delivered! 🎉 {% else
+            %} Will be delivered soon {% endif %}
+          </div>
+        </div>
       </div>
 
-      {% if order[15] %}
+      <!-- Additional Details Based on Status -->
+      {% if order[12] == 'Processing' %}
       <div
-        class="timeline-item {% if order[16] in ['Processing', 'Packed'] %}completed{% endif %}"
+        style="
+          background: #fff3cd;
+          padding: 15px;
+          border-radius: 10px;
+          margin-top: 20px;
+        "
       >
-        <div class="timeline-marker">📦</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Order Processing & Packing</div>
-          <div class="timeline-date">
-            {{ order[15][0:10] if order[15] else 'In Progress' }}
-          </div>
-        </div>
-        <div class="timeline-connector"></div>
+        <i class="fas fa-info-circle"></i>
+        <strong>Your order is being processed.</strong> We'll notify you once
+        it's shipped.
       </div>
-      {% endif %} {% if order[15] %}
-      <div class="timeline-item completed">
-        <div class="timeline-marker">🚚</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Out for Delivery</div>
-          <div class="timeline-date">In Transit</div>
-          <div style="color: #666; font-size: 0.9em; margin-top: 5px">
-            Current Location: {{ order[14] if order[14] else 'Warehouse' }}
-          </div>
-        </div>
-        <div class="timeline-connector"></div>
+      {% elif order[12] == 'Shipped' %}
+      <div
+        style="
+          background: #cce5ff;
+          padding: 15px;
+          border-radius: 10px;
+          margin-top: 20px;
+        "
+      >
+        <i class="fas fa-truck"></i>
+        <strong>Your order is on the way!</strong> Track your package with
+        number: <strong>{{ order[14] }}</strong>
+      </div>
+      {% elif order[12] == 'Delivered' %}
+      <div
+        style="
+          background: #d4edda;
+          padding: 15px;
+          border-radius: 10px;
+          margin-top: 20px;
+        "
+      >
+        <i class="fas fa-check-circle"></i>
+        <strong>Order Delivered!</strong> Thank you for shopping with us. Hope
+        you enjoy your purchase!
       </div>
       {% endif %}
-
-      <div
-        class="timeline-item {% if order[16] == 'Delivered' %}completed{% endif %}"
-      >
-        <div class="timeline-marker">✓</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Expected Delivery</div>
-          <div class="timeline-date">
-            {{ order[12] if order[12] else 'Pending' }}
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Items Breakdown -->
-    <div class="items-breakdown">
-      <h3>Items in This Order</h3>
-      {% for item in items %}
-      <div class="item-row">
-        <div class="item-name">{{ item[0] }}</div>
-        <div class="item-qty">Qty: {{ item[2] }}</div>
-        <div class="item-price">${{ "%.2f"|format(item[4]) }}</div>
-      </div>
-      {% endfor %}
+    <!-- Order Items -->
+    <div class="items-section">
+      <h4><i class="fas fa-box"></i> Order Items</h4>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td><strong>{{ item[0] }}</strong></td>
+            <td>{{ item[1] }}</td>
+            <td>{{ item[2] }}</td>
+            <td>${{ "%.2f"|format(item[3]) }}</td>
+            <td>${{ "%.2f"|format(item[4]) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-      <div class="order-total">Total: ${{ "%.2f"|format(order[9]) }}</div>
+      <div class="total-section">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>${{ "%.2f"|format(order[11] / 1.1) }}</span>
+        </div>
+        <div class="total-row">
+          <span>Shipping:</span>
+          <span>Free</span>
+        </div>
+        <div class="total-row">
+          <span>Tax (10%):</span>
+          <span>${{ "%.2f"|format(order[11] - (order[11] / 1.1)) }}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span>Total:</span>
+          <span>${{ "%.2f"|format(order[11]) }}</span>
+        </div>
+      </div>
     </div>
   </div>
   {% else %}
-  <div class="order-card">
-    <p style="text-align: center; color: #666">Order not found.</p>
+  <div class="order-card" style="padding: 60px; text-align: center">
+    <i
+      class="fas fa-search"
+      style="font-size: 60px; color: #ddd; margin-bottom: 20px"
+    ></i>
+    <h3>Order Not Found</h3>
+    <p style="color: #666">We couldn't find the order you're looking for.</p>
+    <a href="/orders" class="back-link" style="margin-top: 20px"
+      >View All Orders</a
+    >
   </div>
   {% endif %}
 </div>
-
 {% endblock %}
